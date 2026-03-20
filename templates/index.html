@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Used Car Price Predictor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: white; padding: 36px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 520px; }
+    h1 { font-size: 24px; color: #1a1a2e; margin-bottom: 6px; }
+    p.sub { color: #666; font-size: 14px; margin-bottom: 24px; }
+    label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; color: #333; }
+    input, select { width: 100%; padding: 10px 14px; margin-top: 6px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; background: #fafafa; }
+    input:focus, select:focus { outline: none; border-color: #007bff; background: white; }
+    button { margin-top: 28px; width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #0056b3; }
+    #result { margin-top: 20px; padding: 18px; background: #e8f5e9; border-radius: 10px; text-align: center; display: none; }
+    #result .label { font-size: 13px; color: #555; margin-bottom: 4px; }
+    #result .price { font-size: 28px; font-weight: bold; color: #2e7d32; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🚗 Used Car Price Predictor</h1>
+    <p class="sub">Enter car details to get an estimated price</p>
+
+    <label>Car Age (years)</label>
+    <input type="number" id="age" placeholder="e.g. 5" min="1" max="30">
+
+    <label>Kilometres Driven</label>
+    <input type="number" id="km_driven" placeholder="e.g. 45000">
+
+    <label>Transmission</label>
+    <select id="transmission">
+      <option value="1">Manual</option>
+      <option value="0">Automatic</option>
+    </select>
+
+    <label>Owner</label>
+    <select id="owner">
+      <option value="0">First Owner</option>
+      <option value="1">Second Owner</option>
+      <option value="2">Third Owner</option>
+      <option value="3">Fourth Owner or more</option>
+    </select>
+
+    <label>Fuel Type</label>
+    <select id="fuel_type">
+      <option value="0">Diesel</option>
+      <option value="1">Petrol</option>
+      <option value="2">CNG</option>
+    </select>
+
+    <button onclick="predict()">Predict Price</button>
+
+    <div id="result">
+      <div class="label">Estimated Selling Price</div>
+      <div class="price" id="price-value"></div>
+    </div>
+  </div>
+
+  <script>
+    async function predict() {
+      const age         = parseInt(document.getElementById('age').value);
+      const km_driven   = parseFloat(document.getElementById('km_driven').value);
+      const transmission = parseInt(document.getElementById('transmission').value);
+      const owner       = parseInt(document.getElementById('owner').value);
+      const fuel_type   = parseInt(document.getElementById('fuel_type').value);
+
+      if (!age || !km_driven) {
+        alert('Please fill in all fields!');
+        return;
+      }
+
+      const res = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ age, km_driven, transmission, owner, fuel_type })
+      });
+
+      const result = await res.json();
+      const formatted = '₹ ' + result.predicted_price.toLocaleString('en-IN');
+      document.getElementById('price-value').textContent = formatted;
+      document.getElementById('result').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+```
